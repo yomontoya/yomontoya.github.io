@@ -45,6 +45,20 @@ body {
     .play-button:hover { border-bottom: 1px solid #fff; }
     .play-button.loading { cursor: default; border-bottom: none; }
 }
+.list-show {
+    position: absolute;
+    top: 74%;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+    width: 100%;
+    text-transform: uppercase;
+    text-align: center;
+    li { margin-bottom: 5px;}
+    a { color: #fff; text-decoration: none; }
+    a:hover { border-bottom: 1px solid #fff; }
+}
 
 .footer {
     position: absolute; 
@@ -52,7 +66,6 @@ body {
     color: #fff;
     margin: 0 auto;
     text-align: center;
-    z-index: 5;
     width: 100%;
     text-transform: uppercase;
     font-size: 14px;

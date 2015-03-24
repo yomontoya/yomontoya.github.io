@@ -3,7 +3,9 @@ var gulp = require('gulp'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     sass = require('gulp-sass'),
-    minifyCSS = require('gulp-minify-css');
+    minifyCSS = require('gulp-minify-css'),
+    connect = require('gulp-connect');
+    // webserver = require('gulp-webserver');
 
 var paths = {
     sass: ['./scss/*.scss', '!./scss/bourbon/*.scss'],
@@ -34,7 +36,12 @@ gulp.task('script', function() {
 gulp.task('watch', function() {
     gulp.watch(paths.sass, ['sass']);
     gulp.watch(paths.js, ['script']);
+
+});
+
+gulp.task('connect', function() {
+  connect.server();
 });
 
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['lint', 'script', 'sass']);
+gulp.task('default', ['lint', 'script', 'sass', 'watch','connect']);
