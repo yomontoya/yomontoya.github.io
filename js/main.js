@@ -264,42 +264,50 @@ document.addEventListener('DOMContentLoaded', function(){
      * @return {void}
      */
     (function(){
-        var widgetIframe = document.getElementById('sc-widget'),
-            widget       = SC.Widget(widgetIframe),
-            play_button = document.getElementById('play-button');
 
-        widget.bind(SC.Widget.Events.READY, function() {
+        var SoundcloudHelper = {
+            init: function( widgetIframe, play_button ) {
+                // var widgetIframe = document.getElementById('sc-widget'),
+                var widget       = SC.Widget(widgetIframe);
+                    // play_button = document.getElementById('play-button');
 
-            classListHelper.remove(play_button, 'hidden');
-            play_button.addEventListener('click', function() {
+                widget.bind(SC.Widget.Events.READY, function() {
 
-                if ( classListHelper.has( this, 'loading') ) { return; }
-                if ( classListHelper.has( this, 'pause') ) {
-                    this.innerHTML = 'Loading';
-                    classListHelper.add( this, 'loading');
-                    widget.play();
-                }
-                else {
-                    widget.pause();
-                    this.innerHTML = 'Play';
-                    classListHelper.add( this, 'pause');
-                }
-            });
-        });
-        widget.bind( SC.Widget.Events.LOAD_PROGRESS, function() {
-            play_button.innerHTML = 'Loading';
-            classListHelper.add( play_button, 'loading');
-        }); 
-        widget.bind( SC.Widget.Events.PLAY_PROGRESS, function() {
-            play_button.innerHTML = 'Pause';
-            classListHelper.remove( play_button, 'loading');
-        }); 
-        widget.bind( SC.Widget.Events.PAUSE, function() {
-            play_button.innerHTML = 'Play';
-        });
-        widget.bind(SC.Widget.Events.FINISH, function() {
-            play_button.innerHTML = 'Play';
-            classListHelper.add( play_button, 'pause');
-        });
+                    classListHelper.remove(play_button, 'hidden');
+                    play_button.addEventListener('click', function() {
+
+                        // if ( classListHelper.has( this, 'loading') ) { return; }
+                        if ( classListHelper.has( this, 'pause') ) {
+                            this.innerHTML = '&#10074;&#10074;';
+                            classListHelper.remove( this, 'pause');
+                            widget.play();
+                        }
+                        else {
+                            widget.pause();
+                            this.innerHTML = '&#9658';
+                            classListHelper.add( this, 'pause');
+                        }
+                    });
+                });
+                // widget.bind( SC.Widget.Events.LOAD_PROGRESS, function() {
+                //     play_button.innerHTML = 'Loading';
+                //     classListHelper.add( play_button, 'loading');
+                // }); 
+                // widget.bind( SC.Widget.Events.PLAY_PROGRESS, function() {
+                //     play_button.innerHTML = 'Pause';
+                //     classListHelper.remove( play_button, 'loading');
+                // }); 
+                widget.bind( SC.Widget.Events.PAUSE, function() {
+                    play_button.innerHTML = '&#9658';
+                });
+                widget.bind(SC.Widget.Events.FINISH, function() {
+                    play_button.innerHTML = '&#9658';
+                    classListHelper.add( play_button, 'pause');
+                });
+            }
+        };
+        SoundcloudHelper.init( document.getElementById('sc-widget'), document.getElementById('play-button') );
+        SoundcloudHelper.init( document.getElementById('sc-widget2'), document.getElementById('play-button2') );
+        
     }());
 });
