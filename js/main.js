@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function(){
             ctx_over = elem_over.getContext('2d'),
             logo_image = new Image(),
             logo_montoya_image = new Image();
-       console.log(inner_width,inner_height)
+
        // Set logo size
        logo_element.width  = 269;
        logo_element.height = 132; 
