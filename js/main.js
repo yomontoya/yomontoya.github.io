@@ -37,11 +37,11 @@ document.addEventListener('DOMContentLoaded', function(){
         var logo_element = document.getElementById('logo-placeholder');
         var logo_montoya_element = document.getElementById('logo-montoya-placeholder');
         var Logo = {
-            offset_top: 50,
+            offset_top: 150,
             offset_left: 150,
             getTop: function() {
                 if ( window.innerHeight <= 400 ) {
-                    return Math.floor( (window.innerHeight / 2)  );
+                    return 50;
                 }
                 return Math.floor( (window.innerHeight / 2) - this.offset_top );
             }, 
@@ -114,8 +114,12 @@ document.addEventListener('DOMContentLoaded', function(){
             new_background.src =  elem_over.dataset.image;
             new_background.onload = function() {
                 ctx_over.drawImage( this , 0, 0,  inner_width, inner_height);
-                loadLogo();
-                loadLogoMontoya();
+                
+                if ( classListHelper.has(document.body,'home') ) {
+                    loadLogo();
+                } else {
+                    loadLogoMontoya();
+                }
             };
 
             function loadLogo() {
