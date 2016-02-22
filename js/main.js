@@ -35,10 +35,14 @@ document.addEventListener('DOMContentLoaded', function(){
          * @type {Object}
          */
         var logo_element = document.getElementById('logo-placeholder');
+        var logo_montoya_element = document.getElementById('logo-montoya-placeholder');
         var Logo = {
-            offset_top: 88,
+            offset_top: 50,
             offset_left: 150,
             getTop: function() {
+                if ( window.innerHeight <= 400 ) {
+                    return Math.floor( (window.innerHeight / 2)  );
+                }
                 return Math.floor( (window.innerHeight / 2) - this.offset_top );
             }, 
             getLeft: function() {
@@ -71,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 return randomIntFromInterval(1,3);
             },
             getRandomId: function() {
-                return randomIntFromInterval( 0 , 12 );
+                return randomIntFromInterval( 0 , 6 );
             },
             getRandomInterferenceId: function() {
                   return randomIntFromInterval( 0 , 1 );
@@ -81,16 +85,22 @@ document.addEventListener('DOMContentLoaded', function(){
         var random_pause = RandomNumber.getRandomPause(),
             random_blink_number = RandomNumber.getRandomBlinking(),
             coordinates =  Logo.getCoordinates(),
-            inner_width = window.innerWidth,
-            inner_height = window.innerHeight,
+            inner_width = document.body.clientWidth,
+            inner_height = document.body.scrollHeight,
             ctx_logo =  logo_element.getContext('2d'),
+            ctx_logo_montoya =  logo_montoya_element.getContext('2d'),
             elem_over =  document.getElementById('background-animation'),
             ctx_over = elem_over.getContext('2d'),
-            logo_image = new Image();
-       
+            logo_image = new Image(),
+            logo_montoya_image = new Image();
+       console.log(inner_width,inner_height)
        // Set logo size
-       logo_element.width  = 310;
-       logo_element.height = 129;
+       logo_element.width  = 269;
+       logo_element.height = 132; 
+
+       // Set logo size
+       logo_montoya_element.width  = 152;
+       logo_montoya_element.height = 65;
 
 
         function updateCanvas() {
@@ -104,15 +114,23 @@ document.addEventListener('DOMContentLoaded', function(){
             new_background.src =  elem_over.dataset.image;
             new_background.onload = function() {
                 ctx_over.drawImage( this , 0, 0,  inner_width, inner_height);
-                loadLogo();    
+                loadLogo();
+                loadLogoMontoya();
             };
 
-         
             function loadLogo() {
-                logo_image.src = 'img/logo.jpg';
+                logo_image.src = '/img/logo.jpg';
                 logo_image.onload = function() {
                     ctx_logo.drawImage(this, 0, 0);
                     ctx_logo.blendOnto( ctx_over, 'multiply', coordinates );
+                    loadInterference();
+                };
+            } 
+            function loadLogoMontoya() {
+                logo_montoya_image.src = '/img/montoya.jpg';
+                logo_montoya_image.onload = function() {
+                    ctx_logo_montoya.drawImage(this, 0, 0);
+                    ctx_logo_montoya.blendOnto( ctx_over, 'multiply', { destX:  Math.floor( (window.innerWidth / 2) - (logo_montoya_element.width / 2) ), destY: 40 } );
                     loadInterference();
                 };
             }
@@ -152,16 +170,15 @@ document.addEventListener('DOMContentLoaded', function(){
             setTimeout( function() {
                ctx_interference.drawImage( interference , 0, 0);
                var effect = 'multiply';
-               if ( id === 0 || id === 1 ) {
-                    effect = 'colorburn';
-               }
                var coordinates = { destX: 0 , destY: 0 };
                switch( id ) {
                     case 0:
-                        coordinates = { destX: 0 , destY: -200 };
+                        effect = 'darken';
+                        coordinates = { destX: inner_width - 1200 , destY: 0 };
                     break;
                     case 1:
-                        coordinates = { destX: inner_width - 900 , destY: -130 };
+                        effect = 'darken';
+                        coordinates = { destX: 0 , destY: -130 };
                     break;
                }
               
@@ -186,10 +203,10 @@ document.addEventListener('DOMContentLoaded', function(){
                     original_image.src = elem_over.dataset.image;
 
                     // update new image with random number
-                    new_image.src = 'img/background-' + random_id + '.jpg';
+                    new_image.src = '/img/background-' + random_id + '.png';
                     
                     // Store the new image
-                    elem_over.dataset.image = 'img/background-' + random_id + '.jpg';  
+                    elem_over.dataset.image = '/img/background-' + random_id + '.png';  
 
                     // On load start blinking and display the new background
                     new_image.onload = function() {
@@ -223,10 +240,10 @@ document.addEventListener('DOMContentLoaded', function(){
                         original_interference.src = interference_element.dataset.image;
 
                         // update new image with random number
-                        new_interference.src = 'img/interference-' + random_interference_id + '.jpg';
+                        new_interference.src = '/img/interference-' + random_interference_id + '.jpg';
                         
                         // Store the new image
-                        interference_element.dataset.image = 'img/interference-' + random_interference_id + '.jpg';  
+                        interference_element.dataset.image = '/img/interference-' + random_interference_id + '.jpg';  
                         interference_element.dataset.image_id = random_interference_id;  
 
                         new_interference.onload = function() {
@@ -244,8 +261,8 @@ document.addEventListener('DOMContentLoaded', function(){
         window.addEventListener('resize', function() {
             // Update values
             coordinates =  Logo.getCoordinates();
-            inner_width = window.innerWidth;
-            inner_height = window.innerHeight;
+            inner_width = document.body.clientWidth;
+            inner_height = document.body.scrollHeight;
 
             // Update canvas
             updateCanvas();
@@ -255,8 +272,34 @@ document.addEventListener('DOMContentLoaded', function(){
         updateCanvas();
 
         // Start animation
-        BackgroundAnimation.start();
+        // BackgroundAnimation.start();
 
+        // document.getElementById('show-live').addEventListener('click', function(e) {
+        //     e.preventDefault();
+        //     var Box = document.getElementById('live-box');
+        //     var contentBox = document.getElementById('content-box');
+        //     classListHelper.remove( Box, 'hidden');
+        //     classListHelper.add( contentBox, 'hidden');
+        // }); 
+        // document.getElementById('show-contact').addEventListener('click', function(e) {
+        //     e.preventDefault();
+        //     var Box = document.getElementById('contact-box');
+        //     var contentBox = document.getElementById('content-box');
+        //     classListHelper.remove( Box, 'hidden');
+        //     classListHelper.add( contentBox, 'hidden');
+        // });
+        var buttonBackHome = document.querySelectorAll('.js-back-home');
+        for (var i = 0; i < buttonBackHome.length; i++) {
+            buttonBackHome[i].addEventListener('click', function(e) {
+                e.preventDefault();
+                var contactBox = document.getElementById('contact-box');
+                var liveBox = document.getElementById('live-box');
+                var contentBox = document.getElementById('content-box');
+                classListHelper.remove( contentBox, 'hidden');
+                classListHelper.add( contactBox, 'hidden');
+                classListHelper.add( liveBox, 'hidden');
+            });
+        }
     }());
 
     /**
@@ -266,48 +309,58 @@ document.addEventListener('DOMContentLoaded', function(){
     (function(){
 
         var SoundcloudHelper = {
-            init: function( widgetIframe, play_button ) {
+            init: function( widgetIframe, play_button_container, play_button ) {
                 // var widgetIframe = document.getElementById('sc-widget'),
                 var widget       = SC.Widget(widgetIframe);
                     // play_button = document.getElementById('play-button');
 
                 widget.bind(SC.Widget.Events.READY, function() {
 
-                    classListHelper.remove(play_button, 'hidden');
+                    classListHelper.remove(play_button_container, 'invisible');
                     play_button.addEventListener('click', function() {
 
                         // if ( classListHelper.has( this, 'loading') ) { return; }
                         if ( classListHelper.has( this, 'pause') ) {
-                            this.innerHTML = '&#10074;&#10074;';
+                            this.innerHTML = 'Pause';
                             classListHelper.remove( this, 'pause');
                             widget.play();
                         }
                         else {
                             widget.pause();
-                            this.innerHTML = '&#9658';
+                            this.innerHTML = 'Play';
                             classListHelper.add( this, 'pause');
                         }
                     });
+                });
+                document.getElementById('next-track').addEventListener('click', function(e) {
+                    console.log('next')
+                    widget.seekTo(0);
+                    widget.next();
+                }); 
+                document.getElementById('previous-track').addEventListener('click', function(e) {
+                    console.log('prev')
+                    widget.seekTo(0);
+                    widget.prev();
                 });
                 // widget.bind( SC.Widget.Events.LOAD_PROGRESS, function() {
                 //     play_button.innerHTML = 'Loading';
                 //     classListHelper.add( play_button, 'loading');
                 // }); 
-                // widget.bind( SC.Widget.Events.PLAY_PROGRESS, function() {
-                //     play_button.innerHTML = 'Pause';
-                //     classListHelper.remove( play_button, 'loading');
-                // }); 
+                widget.bind( SC.Widget.Events.PLAY_PROGRESS, function() {
+                    play_button.innerHTML = 'Pause';
+                    // classListHelper.remove( play_button, 'loading');
+                }); 
                 widget.bind( SC.Widget.Events.PAUSE, function() {
-                    play_button.innerHTML = '&#9658';
+                    play_button.innerHTML = 'Play';
                 });
                 widget.bind(SC.Widget.Events.FINISH, function() {
-                    play_button.innerHTML = '&#9658';
+                    play_button.innerHTML = 'Play';
                     classListHelper.add( play_button, 'pause');
                 });
             }
         };
-        SoundcloudHelper.init( document.getElementById('sc-widget'), document.getElementById('play-button') );
-        SoundcloudHelper.init( document.getElementById('sc-widget2'), document.getElementById('play-button2') );
+        // SoundcloudHelper.init( document.getElementById('sc-widget'), document.getElementById('play-button-container'), document.getElementById('play-button') );
+        // SoundcloudHelper.init( document.getElementById('sc-widget2'), document.getElementById('play-button2') );
         
     }());
 });
