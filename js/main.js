@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function(){
+    var image_path = '/img/';
     var classListHelper = {
         add: function( el , className ){
             if (el.classList) {
@@ -67,6 +68,14 @@ document.addEventListener('DOMContentLoaded', function(){
          * @type {Object}
          */
         var RandomNumber = {
+            getRandomShowCover: function()
+            {
+                return randomIntFromInterval(1,2);
+            },
+            getRandomCoverPause: function()
+            {
+                return randomIntFromInterval(3,7);
+            },
             getRandomPause: function()
             {
                 return randomIntFromInterval(2,4);
@@ -78,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 return randomIntFromInterval( 0 , 6 );
             },
             getRandomInterferenceId: function() {
-                  return randomIntFromInterval( 0 , 1 );
+                  return randomIntFromInterval( 0 , 10 );
             }
         };
 
@@ -109,7 +118,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
             elem_over.width  = inner_width;
             elem_over.height = inner_height; 
-
+            // console.log(inner_width)
+            // console.log(elem_over.height)
             // Load the new image, this is offscreen
             new_background.src =  elem_over.dataset.image;
             new_background.onload = function() {
@@ -123,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function(){
             };
 
             function loadLogo() {
-                logo_image.src = '/img/logo.jpg';
+                logo_image.src = image_path+'logo.jpg';
                 logo_image.onload = function() {
                     ctx_logo.drawImage(this, 0, 0);
                     ctx_logo.blendOnto( ctx_over, 'multiply', coordinates );
@@ -131,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 };
             } 
             function loadLogoMontoya() {
-                logo_montoya_image.src = '/img/montoya.jpg';
+                logo_montoya_image.src = image_path+'montoya.jpg';
                 logo_montoya_image.onload = function() {
                     ctx_logo_montoya.drawImage(this, 0, 0);
                     ctx_logo_montoya.blendOnto( ctx_over, 'multiply', { destX:  Math.floor( (window.innerWidth / 2) - (logo_montoya_element.width / 2) ), destY: 40 } );
@@ -140,16 +150,42 @@ document.addEventListener('DOMContentLoaded', function(){
             }
 
             function loadInterference() {
-                Interference.getElement().width = 1200;
-                Interference.getElement().height = 900;
-
+                Interference.getElement().width = inner_width;
+                Interference.getElement().height = inner_height;
+                // console.log(Interference.getElement().width ,Interference.getElement().height)
+                // new_interference.width =inner_width*1200/1600;
+                // new_interference.height =inner_height*1600/1200;
                 new_interference.src = interference_element.dataset.image;
+                // console.log( new_interference.width,  new_interference.height )
                 ctx_interference = Interference.getElement().getContext('2d');
 
                 new_interference.onload = function() {
                     // ctx_interference.drawImage( this, 0, 0, inner_width, inner_height);
                     // ctx_interference.blendOnto( ctx_over, 'colorburn' , { destX: 0 , destY: 0 } );
                 };
+            }
+            // Quick version with no animation
+            if ( classListHelper.has(document.body, 'home') ) {
+                for (var i = 0; i <= 10; i++) {
+                    var original_interference = new Image(),
+                        random_interference_id =  i,
+                        new_interference = new Image();
+                    loadInterference();
+
+                    // Store current image
+                    original_interference.src = interference_element.dataset.image;
+
+                    // update new image with random number
+                    new_interference.src = image_path+'interference-' + random_interference_id + '.jpg';
+                    
+                    // Store the new image
+                    interference_element.dataset.image = image_path+'interference-' + random_interference_id + '.jpg';  
+                    interference_element.dataset.image_id = random_interference_id;  
+
+                    new_interference.onload = function() {
+                        showInterference( this, 0  , random_interference_id);
+                    };
+                }
             }
         }
         
@@ -169,24 +205,48 @@ document.addEventListener('DOMContentLoaded', function(){
                
             }, time );
         } 
+        var arrayInterference = [];
+        var animationStopped = false;
         function showInterference( interference, time , id ) {
 
             setTimeout( function() {
-               ctx_interference.drawImage( interference , 0, 0);
-               var effect = 'multiply';
-               var coordinates = { destX: 0 , destY: 0 };
-               switch( id ) {
-                    case 0:
-                        effect = 'darken';
-                        coordinates = { destX: inner_width - 1200 , destY: 0 };
-                    break;
-                    case 1:
-                        effect = 'darken';
-                        coordinates = { destX: 0 , destY: -130 };
-                    break;
-               }
-              
-               ctx_interference.blendOnto( ctx_over, effect, coordinates );
+                var ratio_width = 1600 / inner_width; 
+                var ratio_height = 1200 / inner_height;
+                var interference_width = 0;
+                var interference_height = 0;
+                // console.log(ratio_width,ratio_height)
+                if ( ratio_width < ratio_height ) {
+                    interference_width =  inner_height*1600/1200;
+                    interference_height = inner_height;
+                    // console.log(interference_width,interference_height)
+                } else {
+                    interference_width =  inner_width;
+                    interference_height = inner_width*1200/1600;
+                }
+                ctx_interference.drawImage( interference , 0, 0,  interference_width, interference_height);
+                ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
+
+               // var randomShowing = RandomNumber.getRandomShowCover();
+               
+               // if ( elem_over.dataset.image.indexOf('0') !== -1 && randomShowing === 1 && !animationStopped) {
+               //      BackgroundAnimation.stop();
+               //      animationStopped = true;
+               //  }
+               //  if ( animationStopped && arrayInterference.indexOf(id) === -1 ) {
+               //     arrayInterference.push(id)
+               //  }
+               //  // console.log( animationStopped, arrayInterference.length )
+               //  if ( arrayInterference.length == 11 ) {
+               //      setTimeout(function() {
+               //          BackgroundAnimation.stopInterference();
+               //          BackgroundAnimation.start();
+               //          arrayInterference = [];
+               //          animationStopped = false;
+               //      }, RandomNumber.getRandomCoverPause()* 1000 )
+               //   }
+               //   if ( !animationStopped ) {
+               //      arrayInterference = [];
+               //  }
             }, time );
         }
         /**
@@ -195,6 +255,7 @@ document.addEventListener('DOMContentLoaded', function(){
          */
         var BackgroundAnimation = {
             interval_id: '',
+            interval_interference_id: '',
             start: function() {
                 
                 this.interval_id = setInterval( function() {
@@ -202,15 +263,14 @@ document.addEventListener('DOMContentLoaded', function(){
                      var original_image = new Image(),
                          random_id =  RandomNumber.getRandomId(),
                          new_image = new Image();
-
                     // Store current image
                     original_image.src = elem_over.dataset.image;
 
                     // update new image with random number
-                    new_image.src = '/img/background-' + random_id + '.png';
+                    new_image.src = image_path+'background-' + random_id + '.jpg';
                     
                     // Store the new image
-                    elem_over.dataset.image = '/img/background-' + random_id + '.png';  
+                    elem_over.dataset.image = image_path+'background-' + random_id + '.jpg';  
 
                     // On load start blinking and display the new background
                     new_image.onload = function() {
@@ -233,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
                 }, random_pause*1000 );
                 
-                setInterval( function() {
+                this.interval_interference_id = setInterval( function() {
                     var original_interference = new Image(),
                         random_interference_id =  RandomNumber.getRandomInterferenceId(),
                         new_interference = new Image();
@@ -244,10 +304,10 @@ document.addEventListener('DOMContentLoaded', function(){
                         original_interference.src = interference_element.dataset.image;
 
                         // update new image with random number
-                        new_interference.src = '/img/interference-' + random_interference_id + '.jpg';
+                        new_interference.src = image_path+'interference-' + random_interference_id + '.jpg';
                         
                         // Store the new image
-                        interference_element.dataset.image = '/img/interference-' + random_interference_id + '.jpg';  
+                        interference_element.dataset.image = image_path+'interference-' + random_interference_id + '.jpg';  
                         interference_element.dataset.image_id = random_interference_id;  
 
                         new_interference.onload = function() {
@@ -258,6 +318,9 @@ document.addEventListener('DOMContentLoaded', function(){
             },
             stop: function() {
                 clearInterval( this.interval_id );
+            },
+            stopInterference: function() {
+                clearInterval( this.interval_interference_id );
             }
         };
       
@@ -267,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function(){
             coordinates =  Logo.getCoordinates();
             inner_width = document.body.clientWidth;
             inner_height = document.body.scrollHeight;
-
+            // console.log(inner_height)
             // Update canvas
             updateCanvas();
         });
@@ -276,22 +339,33 @@ document.addEventListener('DOMContentLoaded', function(){
         updateCanvas();
 
         // Start animation
-        // BackgroundAnimation.start();
+        if ( classListHelper.has(document.body, 'home') ) {
+            // BackgroundAnimation.start();
+        }
 
-        // document.getElementById('show-live').addEventListener('click', function(e) {
-        //     e.preventDefault();
-        //     var Box = document.getElementById('live-box');
-        //     var contentBox = document.getElementById('content-box');
-        //     classListHelper.remove( Box, 'hidden');
-        //     classListHelper.add( contentBox, 'hidden');
-        // }); 
-        // document.getElementById('show-contact').addEventListener('click', function(e) {
-        //     e.preventDefault();
-        //     var Box = document.getElementById('contact-box');
-        //     var contentBox = document.getElementById('content-box');
-        //     classListHelper.remove( Box, 'hidden');
-        //     classListHelper.add( contentBox, 'hidden');
-        // });
+
+        document.getElementById('show-live').addEventListener('click', function(e) {
+            e.preventDefault();
+            var Box = document.getElementById('live-box');
+            var contentBox = document.getElementById('content-box');
+            classListHelper.remove( Box, 'hidden');
+            classListHelper.add( contentBox, 'hidden');
+            // setTimeout(function() {
+                inner_height = document.body.scrollHeight;
+                inner_width = document.body.clientWidth;
+            // },10)
+            updateCanvas();
+        }); 
+        document.getElementById('show-contact').addEventListener('click', function(e) {
+            e.preventDefault();
+            var Box = document.getElementById('contact-box');
+            var contentBox = document.getElementById('content-box');
+            classListHelper.remove( Box, 'hidden');
+            classListHelper.add( contentBox, 'hidden');
+            inner_height = document.body.scrollHeight+10;
+            inner_width = document.body.clientWidth;
+            updateCanvas();
+        });
         var buttonBackHome = document.querySelectorAll('.js-back-home');
         for (var i = 0; i < buttonBackHome.length; i++) {
             buttonBackHome[i].addEventListener('click', function(e) {
@@ -302,6 +376,9 @@ document.addEventListener('DOMContentLoaded', function(){
                 classListHelper.remove( contentBox, 'hidden');
                 classListHelper.add( contactBox, 'hidden');
                 classListHelper.add( liveBox, 'hidden');
+                inner_height = window.innerHeight;
+                inner_width = window.innerWidth;
+                updateCanvas();
             });
         }
     }());
@@ -337,12 +414,10 @@ document.addEventListener('DOMContentLoaded', function(){
                     });
                 });
                 document.getElementById('next-track').addEventListener('click', function(e) {
-                    console.log('next')
                     widget.seekTo(0);
                     widget.next();
                 }); 
                 document.getElementById('previous-track').addEventListener('click', function(e) {
-                    console.log('prev')
                     widget.seekTo(0);
                     widget.prev();
                 });
@@ -363,8 +438,8 @@ document.addEventListener('DOMContentLoaded', function(){
                 });
             }
         };
-        // SoundcloudHelper.init( document.getElementById('sc-widget'), document.getElementById('play-button-container'), document.getElementById('play-button') );
-        // SoundcloudHelper.init( document.getElementById('sc-widget2'), document.getElementById('play-button2') );
-        
+        if ( classListHelper.has(document.body, 'home') ) {
+            SoundcloudHelper.init( document.getElementById('sc-widget'), document.getElementById('play-button-container'), document.getElementById('play-button') );
+        }
     }());
 });
