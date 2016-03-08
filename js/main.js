@@ -166,9 +166,11 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             // Quick version with no animation
             if ( classListHelper.has(document.body, 'home') ) {
-                for (var i = 0; i <= 10; i++) {
+                var random_interference_id =  0;
+                createEpCover(random_interference_id);
+
+                function createEpCover(random_interference_id) {
                     var original_interference = new Image(),
-                        random_interference_id =  i,
                         new_interference = new Image();
                     loadInterference();
 
@@ -184,6 +186,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
                     new_interference.onload = function() {
                         showInterference( this, 0  , random_interference_id);
+                        if ( random_interference_id <= 10 ) {
+                            random_interference_id = random_interference_id+1;
+                            createEpCover(random_interference_id);
+                        }
                     };
                 }
             }
@@ -224,7 +230,13 @@ document.addEventListener('DOMContentLoaded', function(){
                     interference_height = inner_width*1200/1600;
                 }
                 ctx_interference.drawImage( interference , 0, 0,  interference_width, interference_height);
-                ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
+                console.log(id)
+                if ( id == 10 ) {
+                    ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
+                } else {
+                    ctx_interference.blendOnto( ctx_over, 'darken', { destX: inner_width - interference_width, destY: 0 } );
+                }
+
 
                // var randomShowing = RandomNumber.getRandomShowCover();
                
