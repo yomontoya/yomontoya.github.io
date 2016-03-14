@@ -88,11 +88,15 @@ document.addEventListener('DOMContentLoaded', function(){
             },
             getRandomInterferenceId: function() {
                   return randomIntFromInterval( 0 , 10 );
+            },
+            getRandomInterferenceNumber: function() {
+                  return randomIntFromInterval( 0 , 10 );
             }
         };
 
         var random_pause = RandomNumber.getRandomPause(),
             random_blink_number = RandomNumber.getRandomBlinking(),
+            interference_number = RandomNumber.getRandomInterferenceNumber(),
             coordinates =  Logo.getCoordinates(),
             inner_width = document.body.clientWidth,
             inner_height = document.body.scrollHeight,
@@ -152,46 +156,8 @@ document.addEventListener('DOMContentLoaded', function(){
             function loadInterference() {
                 Interference.getElement().width = inner_width;
                 Interference.getElement().height = inner_height;
-                // console.log(Interference.getElement().width ,Interference.getElement().height)
-                // new_interference.width =inner_width*1200/1600;
-                // new_interference.height =inner_height*1600/1200;
                 new_interference.src = interference_element.dataset.image;
-                // console.log( new_interference.width,  new_interference.height )
                 ctx_interference = Interference.getElement().getContext('2d');
-
-                new_interference.onload = function() {
-                    // ctx_interference.drawImage( this, 0, 0, inner_width, inner_height);
-                    // ctx_interference.blendOnto( ctx_over, 'colorburn' , { destX: 0 , destY: 0 } );
-                };
-            }
-            // Quick version with no animation
-            if ( classListHelper.has(document.body, 'home') ) {
-                var random_interference_id =  0;
-                createEpCover(random_interference_id);
-
-                function createEpCover(random_interference_id) {
-                    var original_interference = new Image(),
-                        new_interference = new Image();
-                    loadInterference();
-
-                    // Store current image
-                    original_interference.src = interference_element.dataset.image;
-
-                    // update new image with random number
-                    new_interference.src = image_path+'interference-' + random_interference_id + '.jpg';
-                    
-                    // Store the new image
-                    interference_element.dataset.image = image_path+'interference-' + random_interference_id + '.jpg';  
-                    interference_element.dataset.image_id = random_interference_id;  
-
-                    new_interference.onload = function() {
-                        showInterference( this, 0  , random_interference_id);
-                        if ( random_interference_id <= 10 ) {
-                            random_interference_id = random_interference_id+1;
-                            createEpCover(random_interference_id);
-                        }
-                    };
-                }
             }
         }
         
@@ -213,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function(){
         } 
         var arrayInterference = [];
         var animationStopped = false;
-        function showInterference( interference, time , id ) {
+        function showInterference( interferences, time ) {
 
             setTimeout( function() {
                 var ratio_width = 1600 / inner_width; 
@@ -229,19 +195,23 @@ document.addEventListener('DOMContentLoaded', function(){
                     interference_width =  inner_width;
                     interference_height = inner_width*1200/1600;
                 }
-                ctx_interference.drawImage( interference , 0, 0,  interference_width, interference_height);
-                console.log(id)
-                if ( id == 10 ) {
-                    ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
-                } else {
-                    ctx_interference.blendOnto( ctx_over, 'darken', { destX: inner_width - interference_width, destY: 0 } );
+                for (var i = 0; i < interferences.length; i++) {
+                    ctx_interference.drawImage( interferences[i] , 0, 0,  interference_width, interference_height);
+                    if ( interferences[i].src.indexOf('10') !== -1 ) {
+                        ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
+                    } else {
+                        ctx_interference.blendOnto( ctx_over, 'darken', { destX: inner_width - interference_width, destY: 0 } );
+                    }
                 }
+                // console.log(id)
 
 
                // var randomShowing = RandomNumber.getRandomShowCover();
                
                // if ( elem_over.dataset.image.indexOf('0') !== -1 && randomShowing === 1 && !animationStopped) {
                //      BackgroundAnimation.stop();
+               //      BackgroundAnimation.stopInterference();
+               //      console.log('animation stopped')
                //      animationStopped = true;
                //  }
                //  if ( animationStopped && arrayInterference.indexOf(id) === -1 ) {
@@ -250,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function(){
                //  // console.log( animationStopped, arrayInterference.length )
                //  if ( arrayInterference.length == 11 ) {
                //      setTimeout(function() {
-               //          BackgroundAnimation.stopInterference();
                //          BackgroundAnimation.start();
                //          arrayInterference = [];
                //          animationStopped = false;
@@ -261,6 +230,33 @@ document.addEventListener('DOMContentLoaded', function(){
                //  }
             }, time );
         }
+
+        // Preloading images 
+        var storeBackgrounds = [];
+        var storeCurrentBackground;
+        for (var i = 0; i <= 6; i++) {
+            var image = new Image();
+            image.src = image_path+'background-' + i + '.jpg';
+            if ( i === 0 ) {
+                storeCurrentBackground = image;
+            }
+            image.onload = function() {
+                this.isLoaded = true;
+                storeBackgrounds.push(this);
+            }
+        }
+        // Preloading images 
+        var storeInterferences = [];
+        for (var i = 0; i <= 10; i++) {
+            var image = new Image();
+            image.src = image_path+'interference-' + i + '.jpg';
+            image.onload = function() {
+                this.isLoaded = true;
+                storeInterferences.push(this);
+            }
+        }
+
+
         /**
          * Background Animiation
          * @type {Object}
@@ -272,60 +268,29 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                 this.interval_id = setInterval( function() {
 
-                     var original_image = new Image(),
-                         random_id =  RandomNumber.getRandomId(),
-                         new_image = new Image();
-                    // Store current image
-                    original_image.src = elem_over.dataset.image;
+                    var random_id =  RandomNumber.getRandomId();
+                    var original_image = storeCurrentBackground;
 
-                    // update new image with random number
-                    new_image.src = image_path+'background-' + random_id + '.jpg';
-                    
-                    // Store the new image
-                    elem_over.dataset.image = image_path+'background-' + random_id + '.jpg';  
-
-                    // On load start blinking and display the new background
-                    new_image.onload = function() {
-                        showImage( this, 100  );
-                        showImage( original_image, 200 );
-                        showImage( this, 300 );
-                        if ( random_blink_number == 1 ) { return; }
-                        
-                        showImage( original_image, 400 );
-                        showImage( this, 500 );
-                        if ( random_blink_number == 2 ) { return; }
-                        
-                        showImage( original_image, 600 );
-                        showImage( this, 700 );
-                    };
-
+                    if ( storeBackgrounds[random_id].isLoaded == true && original_image !== undefined) {
+                        BackgroundAnimation.showBackgrounds(original_image, storeBackgrounds[random_id], random_blink_number );
+                    }
                     // Reset
                     random_pause = RandomNumber.getRandomPause();
                     random_blink_number = RandomNumber.getRandomBlinking();
 
-                }, random_pause*1000 );
+                }, random_pause*1400 );
                 
                 this.interval_interference_id = setInterval( function() {
-                    var original_interference = new Image(),
-                        random_interference_id =  RandomNumber.getRandomInterferenceId(),
-                        new_interference = new Image();
+                    var interferences = [];
 
-                    if ( random_interference_id != interference_element.dataset.image_id ) {
-
-                        // Store current image
-                        original_interference.src = interference_element.dataset.image;
-
-                        // update new image with random number
-                        new_interference.src = image_path+'interference-' + random_interference_id + '.jpg';
-                        
-                        // Store the new image
-                        interference_element.dataset.image = image_path+'interference-' + random_interference_id + '.jpg';  
-                        interference_element.dataset.image_id = random_interference_id;  
-
-                        new_interference.onload = function() {
-                            showInterference( this, 0  , random_interference_id);
-                        };
+                    for (var i = 0; i <= interference_number; i++) {
+                        var random_interference_id =  RandomNumber.getRandomInterferenceId();
+                        if ( storeInterferences[random_interference_id].isLoaded == true ) {
+                            interferences.push(storeInterferences[random_interference_id]);
+                        }
                     }
+                    showInterference(interferences, 0);
+                    interference_number = RandomNumber.getRandomInterferenceNumber();
                 }, 1800 );
             },
             stop: function() {
@@ -333,6 +298,20 @@ document.addEventListener('DOMContentLoaded', function(){
             },
             stopInterference: function() {
                 clearInterval( this.interval_interference_id );
+            },
+            showBackgrounds: function(original_image, new_image, random_blink_number) {
+                // console.log(typeof original_image, typeof new_image)
+                showImage( new_image, 100  );
+                showImage( original_image, 200 );
+                showImage( new_image, 300 );
+                if ( random_blink_number == 1 ) { return; }
+                
+                showImage( original_image, 400 );
+                showImage( new_image, 500 );
+                if ( random_blink_number == 2 ) { return; }
+                
+                showImage( original_image, 600 );
+                showImage( new_image, 700 );
             }
         };
       
@@ -352,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
         // Start animation
         if ( classListHelper.has(document.body, 'home') ) {
-            // BackgroundAnimation.start();
+            BackgroundAnimation.start();
         }
 
 
