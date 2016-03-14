@@ -170,11 +170,14 @@ document.addEventListener('DOMContentLoaded', function(){
         
         function showImage( img, time ) {
             setTimeout( function() {
-
-                ctx_logo.drawImage( logo_image, 0, 0);
-                ctx_over.drawImage( img , 0, 0,  inner_width, inner_height);
-                ctx_logo.blendOnto( ctx_over, 'multiply', coordinates );
-               
+                if ( classListHelper.has(document.body,'home') ) {
+                    ctx_logo.drawImage( logo_image, 0, 0);
+                    ctx_over.drawImage( img , 0, 0,  inner_width, inner_height);
+                    ctx_logo.blendOnto( ctx_over, 'multiply', coordinates );
+                } else {
+                    ctx_logo_montoya.drawImage(this, 0, 0);
+                    ctx_logo_montoya.blendOnto( ctx_over, 'multiply', { destX:  Math.floor( (window.innerWidth / 2) - (logo_montoya_element.width / 2) ), destY: 40 } );
+                }
             }, time );
         } 
         var arrayInterference = [];
@@ -337,30 +340,39 @@ document.addEventListener('DOMContentLoaded', function(){
 
         document.getElementById('show-live').addEventListener('click', function(e) {
             e.preventDefault();
+            classListHelper.add(document.body,'live-page');
+            classListHelper.remove(document.body,'home');
             var Box = document.getElementById('live-box');
             var contentBox = document.getElementById('content-box');
             classListHelper.remove( Box, 'hidden');
             classListHelper.add( contentBox, 'hidden');
-            // setTimeout(function() {
+            setTimeout(function() {
                 inner_height = document.body.scrollHeight;
                 inner_width = document.body.clientWidth;
-            // },10)
+            },10);
             updateCanvas();
         }); 
         document.getElementById('show-contact').addEventListener('click', function(e) {
             e.preventDefault();
+            classListHelper.add(document.body,'contact-page');
+            classListHelper.remove(document.body,'home');
             var Box = document.getElementById('contact-box');
             var contentBox = document.getElementById('content-box');
             classListHelper.remove( Box, 'hidden');
             classListHelper.add( contentBox, 'hidden');
+            setTimeout(function() {
             inner_height = document.body.scrollHeight+10;
             inner_width = document.body.clientWidth;
+            },10);
             updateCanvas();
         });
         var buttonBackHome = document.querySelectorAll('.js-back-home');
         for (var i = 0; i < buttonBackHome.length; i++) {
             buttonBackHome[i].addEventListener('click', function(e) {
                 e.preventDefault();
+                classListHelper.remove(document.body,'live-page');
+                classListHelper.remove(document.body,'contact-page');
+                classListHelper.add(document.body,'home');
                 var contactBox = document.getElementById('contact-box');
                 var liveBox = document.getElementById('live-box');
                 var contentBox = document.getElementById('content-box');
