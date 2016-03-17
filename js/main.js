@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function(){
         var logo_montoya_element = document.getElementById('logo-montoya-placeholder');
         var Logo = {
             offset_top: 150,
-            offset_left: 135,
+            offset_left: 120,
             getTop: function() {
                 if ( window.innerHeight <= 400 ) {
                     return 50;
