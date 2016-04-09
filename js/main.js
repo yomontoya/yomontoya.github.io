@@ -189,6 +189,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 var ratio_height = 1200 / inner_height;
                 var interference_width = 0;
                 var interference_height = 0;
+                var cutting = false;
                 // console.log(ratio_width,ratio_height)
                 if ( ratio_width < ratio_height ) {
                     interference_width =  inner_height*1600/1200;
@@ -198,39 +199,21 @@ document.addEventListener('DOMContentLoaded', function(){
                     interference_width =  inner_width;
                     interference_height = inner_width*1200/1600;
                 }
+                if ( interference_width <= 500)  {
+                    interference_height = 375;
+                    interference_width = 500;
+                    cutting = true;
+                }
                 for (var i = 0; i < interferences.length; i++) {
                     ctx_interference.drawImage( interferences[i] , 0, 0,  interference_width, interference_height);
                     if ( interferences[i].src.indexOf('10') !== -1 ) {
                         ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0 , destY: 0 } );
+                    } else if ( cutting ) {
+                        ctx_interference.blendOnto( ctx_over, 'darken', { destX: 0, destY: 0 } );
                     } else {
                         ctx_interference.blendOnto( ctx_over, 'darken', { destX: inner_width - interference_width, destY: 0 } );
                     }
                 }
-                // console.log(id)
-
-
-               // var randomShowing = RandomNumber.getRandomShowCover();
-               
-               // if ( elem_over.dataset.image.indexOf('0') !== -1 && randomShowing === 1 && !animationStopped) {
-               //      BackgroundAnimation.stop();
-               //      BackgroundAnimation.stopInterference();
-               //      console.log('animation stopped')
-               //      animationStopped = true;
-               //  }
-               //  if ( animationStopped && arrayInterference.indexOf(id) === -1 ) {
-               //     arrayInterference.push(id)
-               //  }
-               //  // console.log( animationStopped, arrayInterference.length )
-               //  if ( arrayInterference.length == 11 ) {
-               //      setTimeout(function() {
-               //          BackgroundAnimation.start();
-               //          arrayInterference = [];
-               //          animationStopped = false;
-               //      }, RandomNumber.getRandomCoverPause()* 1000 )
-               //   }
-               //   if ( !animationStopped ) {
-               //      arrayInterference = [];
-               //  }
             }, time );
         }
 
