@@ -1,4 +1,18 @@
 document.addEventListener('DOMContentLoaded', function(){
+    fetch('/lives.json')
+        .then(function(response) {
+            return response.json();
+        }).then(function(json) {
+            var listContainer = document.getElementById('live-list');
+            json.shows.forEach(function(elem) {
+                var li = document.createElement('li');
+                li.innerHTML = elem.date + '-' + elem.description;
+                listContainer.insertBefore(li,null);
+            });
+        }).catch(function(ex) {
+          console.log('parsing failed', ex);
+        })
+
     var image_path = '/img/';
     var classListHelper = {
         add: function( el , className ){
